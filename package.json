@@ -1,0 +1,31 @@
+{
+  "name": "digital-astrology",
+  "private": true,
+  "version": "0.1.0",
+  "description": "A modern, modular astrology platform for the Indian market.",
+  "license": "MIT",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "test": "turbo test",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5",
+    "turbo": "^1.13.4",
+    "typescript": "^5.3.3"
+  },
+  "workspaces": [
+    "apps/*",
+    "services/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=18.18.0",
+    "npm": ">=9.0.0"
+  },
+  "packageManager": "yarn@4.10.3"
+}
