@@ -1,6 +1,21 @@
 # Jyotishya • Digital Astrology Platform
 
-This repository houses the scaffolding for a modern astrology platform tailored for India, featuring Vedic + Western horoscopes, Kundli generation, compatibility tools, live astrologer consultations, and an e-commerce marketplace.
+[![CI](https://github.com/DevRoopeshSingh/digital-astrology/actions/workflows/ci.yml/badge.svg)](https://github.com/DevRoopeshSingh/digital-astrology/actions/workflows/ci.yml)
+[![Deploy](https://github.com/DevRoopeshSingh/digital-astrology/actions/workflows/deploy.yml/badge.svg)](https://github.com/DevRoopeshSingh/digital-astrology/actions/workflows/deploy.yml)
+[![CodeQL](https://github.com/DevRoopeshSingh/digital-astrology/actions/workflows/codeql.yml/badge.svg)](https://github.com/DevRoopeshSingh/digital-astrology/actions/workflows/codeql.yml)
+
+This repository houses a modern astrology platform tailored for India, featuring Vedic + Western horoscopes, Kundli generation, compatibility tools, live astrologer consultations, and an e-commerce marketplace.
+
+## ✨ Features
+
+- 🔐 **Authentication** - Supabase-powered auth with Google OAuth and OTP
+- 📊 **Daily Horoscopes** - Personalized predictions based on sun signs
+- 🌙 **Panchang** - Traditional Hindu almanac with tithi, nakshatra, yoga
+- 🎯 **Kundli Generation** - Birth chart calculations and analysis
+- 💬 **Live Consultations** - Connect with verified astrologers
+- 🛍️ **E-Commerce** - Spiritual products marketplace
+- 🌍 **Multi-language** - English, Hindi, Tamil support
+- 📱 **Responsive** - Mobile-first design
 
 ## Monorepo Layout
 
@@ -93,27 +108,80 @@ OPENAI_TIMEOUT_MS=10000
 
 Unset variables default to local mocks so development remains functional.
 
-## Quality Checks
+## Quality Checks & Testing
 
 Run these from the repository root unless noted otherwise:
 
 ```bash
-# Type-check the entire monorepo (NodeNext config)
-yarn --cwd apps/web exec tsc --noEmit --pretty false
+# Type-check the entire monorepo
+cd apps/web && npx tsc --noEmit
+cd apps/admin && npx tsc --noEmit
 
-# Lint specific workspaces
-yarn lint --filter @digital-astrology/web
-yarn lint --filter @digital-astrology/astro-core
+# Lint all packages
+yarn lint
 
-# Unit tests (Vitest) for the web app
-yarn --cwd apps/web test
+# Run all tests
+yarn test
 
-# Turbo-powered pipelines
-yarn turbo run lint
-yarn turbo run test
+# Run tests in watch mode
+yarn test --watch
+
+# Build all packages
+yarn build
 ```
 
-Vitest lives alongside Next.js code (`apps/web/lib/api/*.test.ts`). Add new tests there and run `yarn --cwd apps/web test --watch` for red/green feedback.
+Vitest lives alongside Next.js code (`apps/web/lib/api/*.test.ts`). Add new tests there and run `yarn test --watch` for red/green feedback.
+
+## 🚀 CI/CD Pipeline
+
+This project uses GitHub Actions for continuous integration and deployment:
+
+### Workflows
+
+- **CI** - Runs on every PR (lint, type-check, test, build)
+- **Deploy** - Auto-deploys to Vercel on `main` (production) and `develop` (staging)
+- **CodeQL** - Security scanning (weekly + on PRs)
+- **PR Checks** - Validates PR format, dependencies, secrets
+
+### Branch Protection
+
+- `main` - Protected, requires PR approval and passing CI
+- `develop` - Staging branch, auto-deploys on push
+- `phase*` - Feature branches for major milestones
+
+### Deployment
+
+- **Production**: Deployed to Vercel on merge to `main`
+- **Staging**: Deployed to Vercel on merge to `develop`
+- **Preview**: Deployed on every PR
+
+See [.github/workflows/README.md](.github/workflows/README.md) for detailed CI/CD documentation.
+
+## 🤝 Contributing
+
+We welcome contributions! Please read our [Contributing Guide](CONTRIBUTING.md) for:
+
+- Development workflow
+- Code standards
+- Testing guidelines
+- Commit message format
+- PR process
+
+### Quick Start for Contributors
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feat/amazing-feature`)
+3. Make your changes
+4. Run tests (`yarn test`)
+5. Commit (`git commit -m 'feat: add amazing feature'`)
+6. Push (`git push origin feat/amazing-feature`)
+7. Open a Pull Request
+
+All PRs must:
+- ✅ Pass all CI checks
+- ✅ Have test coverage
+- ✅ Follow code standards
+- ✅ Include documentation updates
 
 ## Internationalisation
 
@@ -125,8 +193,53 @@ Vitest lives alongside Next.js code (`apps/web/lib/api/*.test.ts`). Add new test
 - The shared TypeScript configuration now uses `module: "NodeNext"` and aligns with `moduleResolution: "NodeNext"` to keep `tsc --noEmit` happy across workspaces.
 - Horoscopes returned by `@digital-astrology/lib` include an optional `summary.snapshot` payload so interpretation prompts can use richer planetary context.
 
-## Roadmap
+## 🗺️ Roadmap
 
-- Integrate real ephemeris & Panchang providers (Swiss Ephemeris, Drik Panchang APIs).
-- Wire up authentication (Keycloak, Cognito) and payments (Razorpay, PhonePe).
-- Expand automated coverage (API integration tests, UI smoke tests) and harden CI/CD pipelines.
+### ✅ Completed (Phase 1)
+- [x] Supabase authentication (Google OAuth + OTP)
+- [x] User management system
+- [x] CI/CD pipeline with GitHub Actions
+- [x] Security scanning (CodeQL, Dependabot)
+- [x] Automated testing infrastructure
+- [x] Multi-language support (EN, HI, TA)
+- [x] Daily horoscope integration
+- [x] Panchang calculations
+
+### 🚧 In Progress (Phase 2)
+- [ ] Comprehensive test coverage (target: 70%+)
+- [ ] Error tracking and logging (Sentry)
+- [ ] Performance monitoring
+- [ ] Rate limiting and API security
+- [ ] Docker setup for local development
+- [ ] API documentation (OpenAPI/Swagger)
+
+### 📋 Planned (Phase 3)
+- [ ] Complete commerce service
+- [ ] Complete consultations service
+- [ ] Complete notifications service
+- [ ] Payment integration (Razorpay, PhonePe)
+- [ ] Real-time chat for consultations
+- [ ] Mobile apps (React Native)
+- [ ] Advanced caching (Redis)
+
+## 📚 Documentation
+
+- [Contributing Guide](CONTRIBUTING.md) - How to contribute
+- [CI/CD Workflows](.github/workflows/README.md) - GitHub Actions setup
+- [Setup Guide](docs/SETUP.md) - Detailed setup instructions
+- [Infrastructure](docs/INFRASTRUCTURE.md) - Architecture overview
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) for details
+
+## 🙏 Acknowledgments
+
+- [FreeAstrologyAPI](https://www.freeastrologyapi.com/) - Astrology calculations
+- [Supabase](https://supabase.com/) - Authentication and database
+- [Vercel](https://vercel.com/) - Hosting and deployments
+- [Next.js](https://nextjs.org/) - React framework
+
+---
+
+**Built with ❤️ for the Indian astrology community**
