@@ -3,6 +3,19 @@
 import { useState } from 'react'
 import DateTimePicker from './datetime-picker'
 import LocationPicker from './location-picker'
+import {
+  downloadChartAsPNG,
+  downloadChartAsPDF,
+  generateShareLink,
+  copyToClipboard,
+} from '@/lib/utils/chart-download'
+import {
+  trackChartGenerated,
+  trackChartSaved,
+  trackChartDownloadedPNG,
+  trackChartDownloadedPDF,
+  trackChartShared,
+} from '@/lib/analytics/events'
 
 interface BirthChartGeneratorProps {
   userId: string
@@ -15,6 +28,7 @@ interface BirthData {
   longitude: number
   timezone: number
   location: string
+  chartName?: string
 }
 
 interface Planet {
@@ -82,10 +96,31 @@ const signMeanings: { [key: string]: { element: string; nature: string; color: s
   'Pisces': { element: 'Water', nature: 'Spirituality, Compassion', color: 'text-indigo-400' },
 }
 
+// House meanings for beginners
+const houseMeanings: { [key: number]: { name: string; meaning: string; lifeArea: string } } = {
+  1: { name: '1st House (Lagna)', meaning: 'Your personality, appearance, and how you approach life', lifeArea: 'Self & Identity' },
+  2: { name: '2nd House', meaning: 'Wealth, family, speech, and values', lifeArea: 'Money & Family' },
+  3: { name: '3rd House', meaning: 'Courage, siblings, communication, and short travels', lifeArea: 'Courage & Communication' },
+  4: { name: '4th House', meaning: 'Mother, home, emotions, and property', lifeArea: 'Home & Emotions' },
+  5: { name: '5th House', meaning: 'Children, creativity, intelligence, and romance', lifeArea: 'Creativity & Children' },
+  6: { name: '6th House', meaning: 'Health, enemies, service, and daily work', lifeArea: 'Health & Service' },
+  7: { name: '7th House', meaning: 'Marriage, partnerships, and business relationships', lifeArea: 'Marriage & Partnership' },
+  8: { name: '8th House', meaning: 'Longevity, transformation, and hidden things', lifeArea: 'Transformation & Secrets' },
+  9: { name: '9th House', meaning: 'Father, luck, spirituality, and higher learning', lifeArea: 'Luck & Spirituality' },
+  10: { name: '10th House', meaning: 'Career, reputation, and public life', lifeArea: 'Career & Status' },
+  11: { name: '11th House', meaning: 'Gains, friends, ambitions, and fulfillment', lifeArea: 'Gains & Friends' },
+  12: { name: '12th House', meaning: 'Expenses, losses, spirituality, and foreign lands', lifeArea: 'Liberation & Foreign' },
+}
+
 export default function BirthChartGeneratorV2({ userId, userEmail }: BirthChartGeneratorProps) {
   const [activeTab, setActiveTab] = useState<TabType>('form')
   const [showHelp, setShowHelp] = useState(true)
   const [expandedPlanet, setExpandedPlanet] = useState<string | null>(null)
+  const [downloadingPNG, setDownloadingPNG] = useState(false)
+  const [downloadingPDF, setDownloadingPDF] = useState(false)
+  const [copiedLink, setCopiedLink] = useState(false)
+  const [savingChart, setSavingChart] = useState(false)
+  const [savedChartId, setSavedChartId] = useState<string | null>(null)
 
   const [birthData, setBirthData] = useState<BirthData>({
     dateTime: '',
@@ -93,6 +128,7 @@ export default function BirthChartGeneratorV2({ userId, userEmail }: BirthChartG
     longitude: 77.2090,
     timezone: 5.5,
     location: 'Delhi, India',
+    chartName: '',
   })
 
   const [chartData, setChartData] = useState<BirthChartResponse | null>(null)
@@ -187,6 +223,13 @@ export default function BirthChartGeneratorV2({ userId, userEmail }: BirthChartG
       setChartData(transformedData)
       setActiveTab('chart')
       await fetchSVG('D1')
+
+      // Track analytics
+      trackChartGenerated({
+        hasChartName: !!birthData.chartName?.trim(),
+        location: birthData.location,
+        timeZone: birthData.timezone.toString(),
+      })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
@@ -239,6 +282,126 @@ export default function BirthChartGeneratorV2({ userId, userEmail }: BirthChartG
     const deg = Math.floor(degree)
     const min = Math.floor((degree - deg) * 60)
     return `${deg}° ${min}'`
+  }
+
+  // Download handlers
+  const handleDownloadPNG = async () => {
+    setDownloadingPNG(true)
+    try {
+      const chartName = divisionalCharts.find(c => c.code === selectedDivisional)?.name || 'Birth Chart'
+      await downloadChartAsPNG('rasi-chart', {
+        filename: `${chartName.replace(/\s/g, '-').toLowerCase()}-${Date.now()}.png`,
+        chartName,
+        birthDate: birthData.dateTime ? new Date(birthData.dateTime).toLocaleDateString('en-IN', { dateStyle: 'long' }) : undefined,
+        birthPlace: birthData.location,
+      })
+
+      // Track analytics
+      trackChartDownloadedPNG({ chartType: selectedDivisional })
+    } catch (error) {
+      console.error('PNG download failed:', error)
+      alert('Failed to download chart as PNG. Please try again.')
+    } finally {
+      setDownloadingPNG(false)
+    }
+  }
+
+  const handleDownloadPDF = async () => {
+    setDownloadingPDF(true)
+    try {
+      const chartName = divisionalCharts.find(c => c.code === selectedDivisional)?.name || 'Birth Chart'
+      await downloadChartAsPDF('rasi-chart', {
+        filename: `${chartName.replace(/\s/g, '-').toLowerCase()}-${Date.now()}.pdf`,
+        chartName,
+        birthDate: birthData.dateTime ? new Date(birthData.dateTime).toLocaleDateString('en-IN', { dateStyle: 'long' }) + ' at ' + new Date(birthData.dateTime).toLocaleTimeString('en-IN', { timeStyle: 'short' }) : undefined,
+        birthPlace: birthData.location,
+      })
+
+      // Track analytics
+      trackChartDownloadedPDF({ chartType: selectedDivisional })
+    } catch (error) {
+      console.error('PDF download failed:', error)
+      alert('Failed to download chart as PDF. Please try again.')
+    } finally {
+      setDownloadingPDF(false)
+    }
+  }
+
+  const handleCopyShareLink = async () => {
+    try {
+      const shareLink = generateShareLink(birthData)
+      await copyToClipboard(shareLink)
+      setCopiedLink(true)
+      setTimeout(() => setCopiedLink(false), 3000)
+
+      // Track analytics
+      trackChartShared({ method: 'link' })
+    } catch (error) {
+      console.error('Failed to copy link:', error)
+      alert('Failed to copy share link. Please try again.')
+    }
+  }
+
+  const handleSaveChart = async () => {
+    if (!chartData) {
+      alert('Please generate a chart first')
+      return
+    }
+
+    setSavingChart(true)
+    try {
+      // Generate auto name if not provided
+      const chartName = birthData.chartName?.trim() ||
+        `Birth Chart - ${new Date(birthData.dateTime).toLocaleDateString('en-IN', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        })}`
+
+      const response = await fetch('/api/user/kundli', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: chartName,
+          birthDate: birthData.dateTime,
+          birthTime: new Date(birthData.dateTime).toLocaleTimeString('en-US', {
+            hour12: false,
+            hour: '2-digit',
+            minute: '2-digit'
+          }),
+          birthPlace: birthData.location,
+          latitude: birthData.latitude,
+          longitude: birthData.longitude,
+          timezone: birthData.timezone.toString(),
+          chartData: chartData,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Failed to save chart')
+      }
+
+      const result = await response.json()
+      setSavedChartId(result.kundli.id)
+
+      // Track analytics
+      trackChartSaved({
+        chartName,
+        autoGenerated: !birthData.chartName?.trim(),
+      })
+
+      // Show success message
+      alert('✅ Chart saved successfully! View it in "My Kundlis" page.')
+
+      // Reset saved message after 5 seconds
+      setTimeout(() => setSavedChartId(null), 5000)
+    } catch (error) {
+      console.error('Failed to save chart:', error)
+      alert('Failed to save chart. Please try again.')
+    } finally {
+      setSavingChart(false)
+    }
   }
 
   return (
@@ -345,6 +508,23 @@ export default function BirthChartGeneratorV2({ userId, userEmail }: BirthChartG
           <h2 className="mb-6 text-2xl font-bold text-white">Step 1: Enter Your Birth Information</h2>
 
           <div className="space-y-6">
+            {/* Chart Name Field */}
+            <div>
+              <label className="mb-2 block text-sm font-semibold text-white">
+                Chart Name (Optional)
+              </label>
+              <input
+                type="text"
+                value={birthData.chartName}
+                onChange={(e) => setBirthData({ ...birthData, chartName: e.target.value })}
+                placeholder="e.g., My Birth Chart, Sister's Kundli"
+                className="w-full rounded-lg border border-white/20 bg-white/10 px-4 py-3 text-white placeholder:text-slate-400 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50"
+              />
+              <p className="mt-1 text-xs text-slate-400">
+                If left blank, we'll auto-generate a name like "Birth Chart - 15 Jan 2025"
+              </p>
+            </div>
+
             {/* Date & Time Picker Component */}
             <DateTimePicker
               value={birthData.dateTime}
@@ -548,19 +728,139 @@ export default function BirthChartGeneratorV2({ userId, userEmail }: BirthChartG
             </div>
           )}
 
+          {/* Houses Guide - Beginner Friendly */}
+          {showHelp && (
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+              <h3 className="mb-4 flex items-center gap-2 text-xl font-semibold text-white">
+                <span className="text-2xl">🏠</span>
+                Understanding the 12 Houses
+              </h3>
+              <p className="mb-4 text-sm text-slate-300">
+                Each house represents a different area of your life. Hover over each house to learn more.
+              </p>
+
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {Object.entries(houseMeanings).map(([houseNum, house]) => (
+                  <div
+                    key={houseNum}
+                    className="group relative overflow-hidden rounded-lg border border-white/10 bg-white/5 p-4 transition hover:bg-white/10 hover:shadow-lg"
+                    title={house.meaning}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <p className="text-xs font-semibold text-purple-300">{house.lifeArea}</p>
+                        <p className="mt-1 font-semibold text-white">{house.name}</p>
+                        <p className="mt-2 text-xs text-slate-300">{house.meaning}</p>
+                      </div>
+                      <span className="text-2xl opacity-50 group-hover:opacity-100 transition">{parseInt(houseNum) === 1 ? '👤' : parseInt(houseNum) === 7 ? '💑' : parseInt(houseNum) === 10 ? '💼' : '🏠'}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Chart Visualization */}
           {svgData['D1'] && (
             <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-              <h3 className="mb-4 flex items-center gap-2 text-lg font-semibold text-white">
-                <span className="text-2xl">📈</span>
-                Visual Chart
-              </h3>
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="flex items-center gap-2 text-lg font-semibold text-white">
+                  <span className="text-2xl">📈</span>
+                  Visual Chart
+                </h3>
+
+                {/* Toolbar with Save, Download & Share Buttons */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    onClick={handleSaveChart}
+                    disabled={savingChart || !!savedChartId}
+                    className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-green-500 to-emerald-500 px-4 py-2 text-sm font-semibold text-white transition hover:shadow-lg disabled:opacity-50"
+                    title="Save to My Kundlis"
+                  >
+                    {savingChart ? (
+                      <>
+                        <span className="animate-spin">⏳</span>
+                        Saving...
+                      </>
+                    ) : savedChartId ? (
+                      <>
+                        <span>✅</span>
+                        Saved!
+                      </>
+                    ) : (
+                      <>
+                        <span>💾</span>
+                        Save
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    onClick={handleDownloadPNG}
+                    disabled={downloadingPNG}
+                    className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 px-4 py-2 text-sm font-semibold text-white transition hover:shadow-lg disabled:opacity-50"
+                    title="Download as PNG"
+                  >
+                    {downloadingPNG ? (
+                      <>
+                        <span className="animate-spin">⏳</span>
+                        Downloading...
+                      </>
+                    ) : (
+                      <>
+                        <span>📥</span>
+                        PNG
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    onClick={handleDownloadPDF}
+                    disabled={downloadingPDF}
+                    className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-2 text-sm font-semibold text-white transition hover:shadow-lg disabled:opacity-50"
+                    title="Download as PDF"
+                  >
+                    {downloadingPDF ? (
+                      <>
+                        <span className="animate-spin">⏳</span>
+                        Downloading...
+                      </>
+                    ) : (
+                      <>
+                        <span>📄</span>
+                        PDF
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    onClick={handleCopyShareLink}
+                    className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-orange-500 to-amber-500 px-4 py-2 text-sm font-semibold text-white transition hover:shadow-lg"
+                    title="Copy Share Link"
+                  >
+                    {copiedLink ? (
+                      <>
+                        <span>✅</span>
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <span>🔗</span>
+                        Share
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
               {showHelp && (
                 <p className="mb-4 text-sm text-slate-300">
-                  This is a traditional South Indian style chart showing planetary positions in houses
+                  This is a traditional South Indian style chart showing planetary positions in houses. Use the buttons above to download or share your chart.
                 </p>
               )}
+
               <div
+                id="rasi-chart"
                 className="flex justify-center rounded-lg bg-white p-6"
                 dangerouslySetInnerHTML={{ __html: svgData['D1'].data.svg_code }}
               />
