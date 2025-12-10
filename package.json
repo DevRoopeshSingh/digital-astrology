@@ -22,7 +22,6 @@
   },
   "workspaces": [
     "apps/*",
-    "services/*",
     "packages/*"
   ],
   "engines": {
