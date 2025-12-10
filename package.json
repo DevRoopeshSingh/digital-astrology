@@ -6,7 +6,8 @@
   "license": "MIT",
   "scripts": {
     "dev": "turbo dev",
-    "build": "turbo build",
+    "build": "turbo build --filter=@digital-astrology/web",
+    "build:all": "turbo build",
     "lint": "turbo lint",
     "test": "turbo test",
     "format": "prettier --write ."
