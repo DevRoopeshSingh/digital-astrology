@@ -32,10 +32,10 @@ interface BirthChartResponse {
   data: {
     statusCode?: number
     input?: any
-    output?: any[]
+    output?: unknown[]
     ascendant?: number
     planets?: Planet[]
-    houses?: any[]
+    houses?: unknown[]
   }
   from_cache?: boolean
   cached_at?: string
@@ -51,7 +51,7 @@ interface ChartSVGResponse {
 
 type TabType = 'form' | 'chart' | 'divisional'
 
-export default function BirthChartGenerator({ userId, userEmail }: BirthChartGeneratorProps) {
+export default function BirthChartGenerator({  }: BirthChartGeneratorProps) {
   const [activeTab, setActiveTab] = useState<TabType>('form')
   const [birthData, setBirthData] = useState<BirthData>({
     dateTime: '',
@@ -88,7 +88,7 @@ export default function BirthChartGenerator({ userId, userEmail }: BirthChartGen
   ]
 
   // Transform raw API response to structured format
-  const transformChartData = (rawData: any): BirthChartResponse => {
+  const transformChartData = (rawData: unknown): BirthChartResponse => {
     // Check if data.output exists (raw API format)
     if (rawData.data?.output && Array.isArray(rawData.data.output)) {
       const planetData = rawData.data.output[1] // Second element has planet info

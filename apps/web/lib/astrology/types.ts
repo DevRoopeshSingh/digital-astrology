@@ -62,7 +62,7 @@ export interface BirthChartResponse {
     degree: number
   }[]
   // Raw API response format (nested structure)
-  output?: any[]
+  output?: unknown[]
 }
 
 /**

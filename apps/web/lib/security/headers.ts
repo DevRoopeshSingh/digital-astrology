@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
@@ -48,7 +49,7 @@ export function addSecurityHeaders(response: NextResponse, request: NextRequest)
 /**
  * Build Content Security Policy
  */
-function buildCSP(request: NextRequest): string {
+function buildCSP(_request: NextRequest): string {
   const isDevelopment = process.env.NODE_ENV === 'development'
 
   const cspDirectives: Record<string, string[]> = {

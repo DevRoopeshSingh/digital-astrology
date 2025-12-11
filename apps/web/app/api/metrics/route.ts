@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { performanceMonitor, performanceBudget } from '@/lib/monitoring/performance'
+import { performanceMonitor } from '@/lib/monitoring/performance'
 import { cache } from '@/lib/api/cache'
 import { deduplicator } from '@/lib/api/cache'
 import { logger } from '@/lib/monitoring/logger'

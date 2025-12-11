@@ -142,7 +142,7 @@ export default function AuthTestPage() {
                   {!isAuthenticated ? (
                     <>
                       <li>• Click "Sign In" to authenticate</li>
-                      <li>• Complete onboarding if you're a new user</li>
+                      <li>• Complete onboarding if you&apos;re a new user</li>
                       <li>• Return here to verify your session</li>
                     </>
                   ) : (

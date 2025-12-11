@@ -48,10 +48,10 @@ interface BirthChartResponse {
   data: {
     statusCode?: number
     input?: any
-    output?: any[]
+    output?: unknown[]
     ascendant?: number
     planets?: Planet[]
-    houses?: any[]
+    houses?: unknown[]
   }
   from_cache?: boolean
   cached_at?: string
@@ -112,7 +112,7 @@ const houseMeanings: { [key: number]: { name: string; meaning: string; lifeArea:
   12: { name: '12th House', meaning: 'Expenses, losses, spirituality, and foreign lands', lifeArea: 'Liberation & Foreign' },
 }
 
-export default function BirthChartGeneratorV2({ userId, userEmail }: BirthChartGeneratorProps) {
+export default function BirthChartGeneratorV2({  }: BirthChartGeneratorProps) {
   const [activeTab, setActiveTab] = useState<TabType>('form')
   const [showHelp, setShowHelp] = useState(true)
   const [expandedPlanet, setExpandedPlanet] = useState<string | null>(null)
@@ -148,7 +148,7 @@ export default function BirthChartGeneratorV2({ userId, userEmail }: BirthChartG
     { code: 'D12', name: 'Parents Chart', icon: '👨‍👩‍👦', desc: 'Mother & father', beginner: false },
   ]
 
-  const popularLocations = [
+  const _popularLocations = [
     { name: 'Delhi, India', lat: 28.6139, lon: 77.2090, tz: 5.5 },
     { name: 'Mumbai, India', lat: 19.0760, lon: 72.8777, tz: 5.5 },
     { name: 'Bangalore, India', lat: 12.9716, lon: 77.5946, tz: 5.5 },
@@ -158,7 +158,7 @@ export default function BirthChartGeneratorV2({ userId, userEmail }: BirthChartG
   ]
 
   // Transform raw API response
-  const transformChartData = (rawData: any): BirthChartResponse => {
+  const transformChartData = (rawData: unknown): BirthChartResponse => {
     if (rawData.data?.output && Array.isArray(rawData.data.output)) {
       const planetData = rawData.data.output[1]
       const ascendantData = rawData.data.output[0]?.['0']
@@ -262,7 +262,7 @@ export default function BirthChartGeneratorV2({ userId, userEmail }: BirthChartG
     }
   }
 
-  const selectLocation = (location: typeof popularLocations[0]) => {
+  const _selectLocation = (location: typeof popularLocations[0]) => {
     setBirthData(prev => ({
       ...prev,
       latitude: location.lat,
@@ -634,7 +634,7 @@ export default function BirthChartGeneratorV2({ userId, userEmail }: BirthChartG
                 <div className="mt-4 rounded-lg bg-white/10 p-3 text-sm text-white">
                   <p className="font-semibold">What is the Ascendant?</p>
                   <p className="mt-1 text-slate-200">
-                    This is how others see you and your approach to life. It's determined by the exact time and place of your birth.
+                    This is how others see you and your approach to life. It&apos;s determined by the exact time and place of your birth.
                   </p>
                 </div>
               )}

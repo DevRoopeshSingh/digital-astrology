@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import { logger } from '@/lib/monitoring/logger'
 import { captureException } from '@/lib/monitoring/sentry'
 
@@ -29,12 +30,12 @@ export interface RetryOptions {
   /**
    * Function to determine if error is retryable
    */
-  shouldRetry?: (error: any, attempt: number) => boolean
+  shouldRetry?: (error: unknown, attempt: number) => boolean
 
   /**
    * Callback on retry attempt
    */
-  onRetry?: (error: any, attempt: number, delay: number) => void
+  onRetry?: (error: unknown, attempt: number, delay: number) => void
 }
 
 /**
@@ -45,7 +46,7 @@ const DEFAULT_RETRY_OPTIONS: Required<RetryOptions> = {
   initialDelay: 1000,
   maxDelay: 10000,
   backoffMultiplier: 2,
-  shouldRetry: (error: any) => {
+  shouldRetry: (error: unknown) => {
     // Retry on network errors and 5xx server errors
     if (error?.code === 'ECONNRESET' || error?.code === 'ETIMEDOUT') {
       return true

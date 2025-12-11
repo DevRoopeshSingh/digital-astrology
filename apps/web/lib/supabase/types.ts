@@ -17,20 +17,20 @@ export interface Database {
   public: {
     Tables: {
       [_ in string]: {
-        Row: Record<string, any>
-        Insert: Record<string, any>
-        Update: Record<string, any>
+        Row: Record<string, unknown>
+        Insert: Record<string, unknown>
+        Update: Record<string, unknown>
       }
     }
     Views: {
       [_ in string]: {
-        Row: Record<string, any>
+        Row: Record<string, unknown>
       }
     }
     Functions: {
       [_ in string]: {
-        Args: Record<string, any>
-        Returns: any
+        Args: Record<string, unknown>
+        Returns: unknown
       }
     }
     Enums: {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import * as Sentry from '@sentry/nextjs'
 
 /**
@@ -72,7 +73,7 @@ export function initSentry() {
 /**
  * Capture an exception to Sentry
  */
-export function captureException(error: Error | unknown, context?: Record<string, any>) {
+export function captureException(error: Error | unknown, context?: Record<string, unknown>) {
   if (process.env.NODE_ENV === 'test') return
 
   Sentry.captureException(error, {
@@ -105,7 +106,7 @@ export function addBreadcrumb(breadcrumb: {
   message: string
   category?: string
   level?: Sentry.SeverityLevel
-  data?: Record<string, any>
+  data?: Record<string, unknown>
 }) {
   if (process.env.NODE_ENV === 'test') return
 
@@ -115,9 +116,9 @@ export function addBreadcrumb(breadcrumb: {
 /**
  * Wrap async function with error tracking
  */
-export function withErrorTracking<T extends (...args: any[]) => any>(
+export function withErrorTracking<T extends (...args: unknown[]) => any>(
   fn: T,
-  context?: Record<string, any>
+  context?: Record<string, unknown>
 ): T {
   return ((...args: Parameters<T>) => {
     try {

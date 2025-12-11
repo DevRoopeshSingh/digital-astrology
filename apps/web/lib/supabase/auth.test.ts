@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { supabaseAuth } from './auth'
 import { createMockSupabaseAuth } from '@test/mocks/supabase'

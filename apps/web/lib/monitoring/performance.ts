@@ -15,12 +15,12 @@ interface PerformanceMetric {
   name: string
   duration: number
   timestamp: number
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 interface TimingResult {
   duration: number
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 /**
@@ -131,7 +131,7 @@ export const performanceMonitor = new PerformanceMonitor()
 export async function measureAsync<T>(
   name: string,
   fn: () => Promise<T>,
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 ): Promise<T> {
   const start = performance.now()
 
@@ -177,7 +177,7 @@ export async function measureAsync<T>(
 export function measureSync<T>(
   name: string,
   fn: () => T,
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 ): T {
   const start = performance.now()
 
@@ -228,10 +228,10 @@ export function measureSync<T>(
  * const { duration } = endTimer()
  * ```
  */
-export function startTimer(name: string, metadata?: Record<string, any>) {
+export function startTimer(name: string, metadata?: Record<string, unknown>) {
   const start = performance.now()
 
-  return (additionalMetadata?: Record<string, any>): TimingResult => {
+  return (additionalMetadata?: Record<string, unknown>): TimingResult => {
     const duration = performance.now() - start
     const combinedMetadata = { ...metadata, ...additionalMetadata }
 
@@ -331,14 +331,14 @@ export async function trackApiRequest<T>(
  */
 export function tracked(name?: string) {
   return function (
-    target: any,
+    target: object,
     propertyKey: string,
     descriptor: PropertyDescriptor
   ) {
     const originalMethod = descriptor.value
     const metricName = name || `${target.constructor.name}.${propertyKey}`
 
-    descriptor.value = async function (...args: any[]) {
+    descriptor.value = async function (...args: unknown[]) {
       return measureAsync(metricName, () => originalMethod.apply(this, args))
     }
 
@@ -379,8 +379,8 @@ export function reportWebVitals(metric: {
   })
 
   // Send to analytics
-  if (typeof window !== 'undefined' && (window as any).gtag) {
-    ;(window as any).gtag('event', metric.name, {
+  if (typeof window !== 'undefined' && (window as Window & { gtag?: (...args: unknown[]) => void }).gtag) {
+    ;(window as Window & { gtag: (...args: unknown[]) => void }).gtag('event', metric.name, {
       value: Math.round(metric.value),
       metric_id: metric.id,
       metric_rating: metric.rating,
@@ -400,11 +400,11 @@ export function reportWebVitals(metric: {
  * }
  * ```
  */
-export function useRenderTracking(componentName: string, props?: any) {
-  if (typeof window !== 'undefined') {
-    const renderCount = React.useRef(0)
+export function useRenderTracking(componentName: string, props?: Record<string, unknown>) {
+  const renderCount = React.useRef(0)
 
-    React.useEffect(() => {
+  React.useEffect(() => {
+    if (typeof window !== 'undefined') {
       renderCount.current++
 
       if (renderCount.current > 1) {
@@ -414,14 +414,14 @@ export function useRenderTracking(componentName: string, props?: any) {
           props: props ? Object.keys(props) : undefined,
         })
       }
-    })
-  }
+    }
+  })
 }
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 declare namespace React {
   function useRef<T>(initialValue: T): { current: T }
-  function useEffect(effect: () => void | (() => void), deps?: any[]): void
+  function useEffect(effect: () => void | (() => void), deps?: unknown[]): void
 }
 
 /**

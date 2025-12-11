@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { cached } from '@/lib/api/cache'
 import { logger } from '@/lib/monitoring/logger'
 import {

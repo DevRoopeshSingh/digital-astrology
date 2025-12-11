@@ -1,5 +1,5 @@
 import { createClient } from './client'
-import type { Database } from './types'
+// import type { Database } from './types'
 
 /**
  * Generic database query helpers
@@ -8,9 +8,9 @@ export const supabaseDB = {
   /**
    * Select data from a table
    */
-  async select<T = any>(table: string, options?: {
+  async select(table: string, options?: {
     columns?: string
-    filter?: Record<string, any>
+    filter?: Record<string, unknown>
     order?: { column: string; ascending?: boolean }
     limit?: number
   }) {
@@ -42,7 +42,7 @@ export const supabaseDB = {
   /**
    * Insert data into a table
    */
-  async insert<T = any>(table: string, data: Record<string, any> | Record<string, any>[]) {
+  async insert(table: string, data: Record<string, unknown> | Record<string, unknown>[]) {
     const supabase = createClient()
     return await supabase.from(table).insert(data).select()
   },
@@ -50,10 +50,10 @@ export const supabaseDB = {
   /**
    * Update data in a table
    */
-  async update<T = any>(
+  async update(
     table: string,
-    data: Record<string, any>,
-    filter: Record<string, any>
+    data: Record<string, unknown>,
+    filter: Record<string, unknown>
   ) {
     const supabase = createClient()
     let query = supabase.from(table).update(data)
@@ -69,7 +69,7 @@ export const supabaseDB = {
   /**
    * Delete data from a table
    */
-  async delete(table: string, filter: Record<string, any>) {
+  async delete(table: string, filter: Record<string, unknown>) {
     const supabase = createClient()
     let query = supabase.from(table).delete()
 
@@ -84,9 +84,9 @@ export const supabaseDB = {
   /**
    * Upsert data (insert or update if exists)
    */
-  async upsert<T = any>(
+  async upsert(
     table: string,
-    data: Record<string, any> | Record<string, any>[],
+    data: Record<string, unknown> | Record<string, unknown>[],
     options?: { onConflict?: string }
   ) {
     const supabase = createClient()
@@ -99,7 +99,7 @@ export const supabaseDB = {
   /**
    * Get a single row by ID
    */
-  async getById<T = any>(table: string, id: string, idColumn: string = 'id') {
+  async getById(table: string, id: string, idColumn: string = 'id') {
     const supabase = createClient()
     return await supabase
       .from(table)
@@ -118,7 +118,7 @@ export const supabaseRealtime = {
    */
   subscribeToTable(
     table: string,
-    callback: (payload: any) => void,
+    callback: (payload: unknown) => void,
     options?: {
       event?: 'INSERT' | 'UPDATE' | 'DELETE' | '*'
       filter?: string
@@ -129,7 +129,7 @@ export const supabaseRealtime = {
     const channel = supabase
       .channel(`${table}-changes`)
       .on(
-        'postgres_changes' as any,
+        'postgres_changes',
         {
           event: options?.event || '*',
           schema: 'public',
@@ -146,7 +146,7 @@ export const supabaseRealtime = {
   /**
    * Unsubscribe from a channel
    */
-  async unsubscribe(channel: any) {
+  async unsubscribe(channel: unknown) {
     const supabase = createClient()
     return await supabase.removeChannel(channel)
   },

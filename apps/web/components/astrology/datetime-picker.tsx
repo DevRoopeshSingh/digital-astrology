@@ -97,6 +97,7 @@ export default function DateTimePicker({ value, onChange, showHelp = true }: Dat
         setTime(parsed.time)
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]) // Only re-run when value prop changes
 
   // Get today's date for max attribute
@@ -192,7 +193,7 @@ export default function DateTimePicker({ value, onChange, showHelp = true }: Dat
             <li>• Check your <strong>birth certificate</strong> for exact time</li>
             <li>• Even 2-3 minutes difference can change your chart</li>
             <li>• Use 24-hour format: <strong>14:30</strong> = 2:30 PM, <strong>02:30</strong> = 2:30 AM</li>
-            <li>• If you don't know exact time, use <strong>12:00</strong> (noon) as estimate</li>
+            <li>• If you don&apos;t know exact time, use <strong>12:00</strong> (noon) as estimate</li>
           </ul>
         </div>
       )}

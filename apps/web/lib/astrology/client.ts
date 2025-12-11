@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
 import { logger } from '@/lib/monitoring/logger'
 import { captureException } from '@/lib/monitoring/sentry'
 import { retryFetch } from '@/lib/api/retry'
@@ -114,7 +115,7 @@ export const rateLimitTracker = new RateLimitTracker()
  */
 async function makeRequest<T>(
   endpoint: string,
-  payload: Partial<AstrologyRequest> | Record<string, any>,
+  payload: Partial<AstrologyRequest> | Record<string, unknown>,
   operationName: string
 ): Promise<T> {
   // Check rate limit

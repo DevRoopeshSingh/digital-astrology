@@ -17,7 +17,7 @@ export const supabaseAuth = {
   /**
    * Sign up with email and password
    */
-  async signUpWithEmail(email: string, password: string, metadata?: Record<string, any>) {
+  async signUpWithEmail(email: string, password: string, metadata?: Record<string, unknown>) {
     const supabase = createClient()
     return await supabase.auth.signUp({
       email,
@@ -167,7 +167,7 @@ export const supabaseAuth = {
   /**
    * Update user metadata
    */
-  async updateUser(updates: { email?: string; password?: string; data?: Record<string, any> }) {
+  async updateUser(updates: { email?: string; password?: string; data?: Record<string, unknown> }) {
     const supabase = createClient()
     return await supabase.auth.updateUser(updates)
   },

@@ -101,7 +101,7 @@ export default async function BirthChartPage() {
               </p>
               <p className="text-sm text-slate-300">
                 💡 <strong>Pro tip:</strong> Always check your birth certificate or hospital records for the most accurate time.
-                If you don't know your exact birth time, consult a Vedic astrologer who can perform "birth time rectification" using major life events.
+                If you don&apos;t know your exact birth time, consult a Vedic astrologer who can perform "birth time rectification" using major life events.
               </p>
             </div>
           </div>

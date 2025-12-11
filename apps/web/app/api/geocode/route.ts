@@ -19,7 +19,7 @@ import { NextRequest, NextResponse } from 'next/server'
  */
 
 // In-memory cache to reduce Nominatim API calls
-const cache = new Map<string, { data: any; timestamp: number }>()
+const cache = new Map<string, { data: unknown; timestamp: number }>()
 const CACHE_TTL = 1000 * 60 * 60 // 1 hour
 
 // Rate limiting: max 1 request per second (per Nominatim policy)

@@ -43,7 +43,7 @@ function SignInContent() {
         setMessage("Magic link sent! Check your email inbox.");
         setStep("check-email");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || "Failed to send magic link. Please try again.");
     } finally {
       setIsLoading(false);
@@ -74,7 +74,7 @@ function SignInContent() {
         setMessage(`OTP sent to your ${inputType === 'email' ? 'email' : 'phone'}!`);
         setStep("otp");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || "Failed to send OTP. Please try again.");
     } finally {
       setIsLoading(false);
@@ -109,7 +109,7 @@ function SignInContent() {
         router.push(callbackUrl);
         router.refresh();
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || "Invalid code. Please try again.");
     } finally {
       setIsLoading(false);
@@ -119,7 +119,7 @@ function SignInContent() {
   const handleGoogleSignIn = async () => {
     try {
       await supabaseAuth.signInWithOAuth("google", callbackUrl);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || "Failed to sign in with Google");
     }
   };
@@ -220,7 +220,7 @@ function SignInContent() {
                       className="mt-2 w-full rounded-lg border border-white/20 bg-white/10 px-4 py-3 text-white placeholder-slate-400 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50"
                     />
                     <p className="mt-2 text-xs text-slate-400">
-                      We'll send you a magic link to sign in
+                      We&apos;ll send you a magic link to sign in
                     </p>
                   </div>
 
@@ -248,7 +248,7 @@ function SignInContent() {
                       className="mt-2 w-full rounded-lg border border-white/20 bg-white/10 px-4 py-3 text-white placeholder-slate-400 focus:border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50"
                     />
                     <p className="mt-2 text-xs text-slate-400">
-                      We'll send you a one-time password
+                      We&apos;ll send you a one-time password
                     </p>
                   </div>
 

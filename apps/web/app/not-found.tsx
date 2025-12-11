@@ -29,7 +29,7 @@ export default function NotFound() {
           Page Not Found
         </h2>
         <p className="mb-8 text-slate-300">
-          The cosmic path you're seeking doesn't exist in our constellation.
+          The cosmic path you&apos;re seeking doesn&apos;t exist in our constellation.
           Perhaps the stars have guided you elsewhere?
         </p>
 

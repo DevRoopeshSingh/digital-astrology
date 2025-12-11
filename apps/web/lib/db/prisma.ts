@@ -40,7 +40,7 @@ function createPrismaClient() {
   })
 
   // Log slow queries (> 1 second)
-  client.$on('query' as never, (e: any) => {
+  client.$on('query' as never, (e: unknown) => {
     const duration = e.duration || 0
 
     if (duration > 1000) {
@@ -60,12 +60,12 @@ function createPrismaClient() {
   })
 
   // Log errors
-  client.$on('error' as never, (e: any) => {
+  client.$on('error' as never, (e: unknown) => {
     logger.error('Database error', e)
   })
 
   // Log warnings
-  client.$on('warn' as never, (e: any) => {
+  client.$on('warn' as never, (e: unknown) => {
     logger.warn('Database warning', e)
   })
 
@@ -171,7 +171,7 @@ export async function withTransaction<T>(
   const maxRetries = options?.maxRetries || 3
   const timeout = options?.timeout || 10000
 
-  let lastError: any
+  let lastError: unknown
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
@@ -179,7 +179,7 @@ export async function withTransaction<T>(
         timeout,
         maxWait: 5000, // Maximum time to wait for a transaction to start
       })
-    } catch (error: any) {
+    } catch (error: unknown) {
       lastError = error
 
       // Don't retry on certain errors

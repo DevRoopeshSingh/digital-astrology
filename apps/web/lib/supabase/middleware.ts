@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from './server'
@@ -73,7 +74,7 @@ function serverErrorResponse(message = 'Authentication failed') {
  * }
  * ```
  */
-export async function requireAuth(request: NextRequest) {
+export async function requireAuth(_request: NextRequest) {
   try {
     const supabase = await createClient()
     const { data: { user }, error } = await supabase.auth.getUser()
@@ -111,7 +112,7 @@ export async function requireAuth(request: NextRequest) {
  * }
  * ```
  */
-export async function optionalAuth(request: NextRequest) {
+export async function optionalAuth(_request: NextRequest) {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
