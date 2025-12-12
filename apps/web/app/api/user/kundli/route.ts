@@ -59,7 +59,8 @@ export async function POST(request: NextRequest) {
         latitude,
         longitude,
         timezone,
-        chartData: chartData as any, // Cast to satisfy Prisma JSON type
+        // TODO: Replace 'any' cast with proper Prisma.InputJsonValue type handling
+        chartData: chartData as any,
         isPublic: false,
       },
     })
@@ -98,7 +99,8 @@ export async function POST(request: NextRequest) {
  * Get User's Saved Kundlis
  * GET /api/user/kundli
  */
-export async function GET(request: NextRequest) {
+// TODO: May need request for future pagination/filtering
+export async function GET(_request: NextRequest) {
   try {
     // Authenticate user
     const supabase = await createClient()

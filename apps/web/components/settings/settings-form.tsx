@@ -27,10 +27,11 @@ interface DbUser {
 
 interface SettingsFormProps {
   user: DbUser
-  supabaseUser: User
+  supabaseUser?: User // TODO: Will be used for advanced auth features
 }
 
-export default function SettingsForm({ user, supabaseUser }: SettingsFormProps) {
+// TODO: supabaseUser will be used for session refresh and advanced auth
+export default function SettingsForm({ user, supabaseUser: _supabaseUser }: SettingsFormProps) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)

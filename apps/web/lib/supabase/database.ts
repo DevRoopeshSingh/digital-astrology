@@ -129,13 +129,13 @@ export const supabaseRealtime = {
 
     const channel = supabase
       .channel(`${table}-changes`)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // TODO: Fix Supabase type definitions - postgres_changes should be properly typed
       .on('postgres_changes' as any, {
         event: options?.event || '*',
         schema: 'public',
         table,
         filter: options?.filter,
-      } as any, callback as (payload: any) => void)
+      } as any, callback as any)
       .subscribe()
 
     return channel

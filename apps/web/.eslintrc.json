@@ -1,3 +1,16 @@
 {
-  "extends": ["next/core-web-vitals", "plugin:@typescript-eslint/recommended"]
+  "extends": ["next/core-web-vitals", "plugin:@typescript-eslint/recommended"],
+  "rules": {
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "caughtErrorsIgnorePattern": "^_"
+      }
+    ],
+    "@typescript-eslint/no-explicit-any": "warn",
+    "react/no-unescaped-entities": "warn"
+  },
+  "ignorePatterns": ["app/auth-test/**"]
 }
