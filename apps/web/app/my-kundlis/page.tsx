@@ -34,7 +34,11 @@ export default async function MyKundlisPage() {
     redirect('/onboarding')
   }
 
-  const kundlis = dbUser.kundlis
+  // Transform kundlis to match the expected type
+  const kundlis = dbUser.kundlis.map(k => ({
+    ...k,
+    chartData: (k.chartData || {}) as Record<string, unknown>
+  }))
 
   return (
     <div className="mx-auto min-h-screen max-w-6xl px-6 py-12 lg:px-16">

@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 'use client'
 
 import { useState } from 'react'
@@ -79,7 +80,7 @@ export default function OnboardingPage() {
       router.push('/dashboard')
       router.refresh()
     } catch (err: unknown) {
-      setError(err.message || 'An error occurred. Please try again.')
+      setError(err instanceof Error ? err.message : 'An error occurred. Please try again.')
     } finally {
       setLoading(false)
     }

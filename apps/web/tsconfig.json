@@ -12,6 +12,9 @@
       ],
       "@components/*": [
         "./components/*"
+      ],
+      "@test/*": [
+        "./test/*"
       ]
     },
     "types": [

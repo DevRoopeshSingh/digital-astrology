@@ -32,7 +32,7 @@ export default function KundliCard({ kundli, onDelete }: KundliCardProps) {
   const chartData = kundli.chartData as Record<string, unknown>
   const dataObj = chartData?.data as Record<string, unknown> | undefined
   const outputArray = chartData?.output as Array<Record<string, Record<string, unknown>>> | undefined
-  const hasAscendant = dataObj?.ascendant || outputArray?.[0]?.['0']?.ascendant
+  const hasAscendant = (dataObj?.ascendant as number | undefined) || (outputArray?.[0]?.['0']?.ascendant as number | undefined)
 
   const handleDelete = async () => {
     if (!confirm(`Are you sure you want to delete "${kundli.name}"? This action cannot be undone.`)) {

@@ -47,18 +47,28 @@ const DEFAULT_RETRY_OPTIONS: Required<RetryOptions> = {
   maxDelay: 10000,
   backoffMultiplier: 2,
   shouldRetry: (error: unknown) => {
+    // Type guard for error with code property
+    const hasCode = (err: unknown): err is { code: string } =>
+      typeof err === 'object' && err !== null && 'code' in err
+
+    // Type guard for error with response property
+    const hasResponse = (err: unknown): err is { response: { status: number } } =>
+      typeof err === 'object' && err !== null && 'response' in err &&
+      typeof (err as any).response === 'object' && (err as any).response !== null &&
+      'status' in (err as any).response
+
     // Retry on network errors and 5xx server errors
-    if (error?.code === 'ECONNRESET' || error?.code === 'ETIMEDOUT') {
+    if (hasCode(error) && (error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT')) {
       return true
     }
 
     // Retry on HTTP 5xx errors
-    if (error?.response?.status >= 500 && error?.response?.status < 600) {
+    if (hasResponse(error) && error.response.status >= 500 && error.response.status < 600) {
       return true
     }
 
     // Retry on specific HTTP errors
-    if ([408, 429, 503, 504].includes(error?.response?.status)) {
+    if (hasResponse(error) && [408, 429, 503, 504].includes(error.response.status)) {
       return true
     }
 
@@ -185,21 +195,30 @@ export async function retryFetch(
     {
       ...options,
       shouldRetry: (error, attempt) => {
+        // Type guards
+        const hasCode = (err: unknown): err is { code: string } =>
+          typeof err === 'object' && err !== null && 'code' in err
+
+        const hasResponse = (err: unknown): err is { response: { status: number } } =>
+          typeof err === 'object' && err !== null && 'response' in err &&
+          typeof (err as any).response === 'object' && (err as any).response !== null &&
+          'status' in (err as any).response
+
         // Custom logic for fetch
-        const status = error?.response?.status
+        const status = hasResponse(error) ? error.response.status : undefined
 
         // Don't retry client errors (4xx) except specific ones
-        if (status >= 400 && status < 500) {
+        if (status && status >= 400 && status < 500) {
           return [408, 429].includes(status)
         }
 
         // Retry server errors (5xx)
-        if (status >= 500) {
+        if (status && status >= 500) {
           return true
         }
 
         // Retry network errors
-        if (error?.code === 'ECONNRESET' || error?.code === 'ETIMEDOUT') {
+        if (hasCode(error) && (error.code === 'ECONNRESET' || error.code === 'ETIMEDOUT')) {
           return true
         }
 

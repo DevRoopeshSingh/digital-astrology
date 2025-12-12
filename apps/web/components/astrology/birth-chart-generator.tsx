@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 
-import { useState } from 'react'
+import { useState} from 'react'
 
 interface BirthChartGeneratorProps {
   userId: string
@@ -88,7 +89,7 @@ export default function BirthChartGenerator() {
   ]
 
   // Transform raw API response to structured format
-  const transformChartData = (rawData: Record<string, unknown>): BirthChartResponse => {
+  const transformChartData = (rawData: BirthChartResponse | Record<string, unknown>): BirthChartResponse => {
     const data = rawData.data as Record<string, unknown>
     // Check if data.output exists (raw API format)
     if (data?.output && Array.isArray(data.output)) {
@@ -106,7 +107,7 @@ export default function BirthChartGenerator() {
             name,
             fullDegree: (p.fullDegree as number) || 0,
             normDegree: (p.normDegree as number) || 0,
-            isRetro: p.isRetro || false,
+            isRetro: (p.isRetro as string | boolean) || false,
             sign: getSignName((p.current_sign as number) || 1),
             house: p.house_number as number,
           })
@@ -202,6 +203,16 @@ export default function BirthChartGenerator() {
     const deg = Math.floor(degree)
     const min = Math.floor((degree - deg) * 60)
     return `${deg}° ${min}'`
+  }
+
+  const selectLocation = (loc: { name: string; lat: number; lon: number; tz: number }) => {
+    setBirthData({
+      ...birthData,
+      location: loc.name,
+      latitude: loc.lat,
+      longitude: loc.lon,
+      timezone: loc.tz,
+    })
   }
 
   return (

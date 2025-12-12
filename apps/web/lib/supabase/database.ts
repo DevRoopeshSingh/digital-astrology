@@ -1,4 +1,5 @@
 import { createClient } from './client'
+import type { RealtimeChannel } from '@supabase/supabase-js'
 // import type { Database } from './types'
 
 /**
@@ -123,21 +124,18 @@ export const supabaseRealtime = {
       event?: 'INSERT' | 'UPDATE' | 'DELETE' | '*'
       filter?: string
     }
-  ) {
+  ): RealtimeChannel {
     const supabase = createClient()
 
     const channel = supabase
       .channel(`${table}-changes`)
-      .on(
-        'postgres_changes',
-        {
-          event: options?.event || '*',
-          schema: 'public',
-          table,
-          filter: options?.filter,
-        },
-        callback
-      )
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .on('postgres_changes' as any, {
+        event: options?.event || '*',
+        schema: 'public',
+        table,
+        filter: options?.filter,
+      } as any, callback as (payload: any) => void)
       .subscribe()
 
     return channel
@@ -146,7 +144,7 @@ export const supabaseRealtime = {
   /**
    * Unsubscribe from a channel
    */
-  async unsubscribe(channel: unknown) {
+  async unsubscribe(channel: RealtimeChannel) {
     const supabase = createClient()
     return await supabase.removeChannel(channel)
   },

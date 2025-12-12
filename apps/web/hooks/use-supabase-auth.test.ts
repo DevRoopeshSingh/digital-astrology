@@ -67,9 +67,9 @@ describe('useSupabaseAuth', () => {
 
   it('subscribes to auth state changes', async () => {
     const mockSession = createMockSession()
-    let authCallback: Function
+    let authCallback: ((event: string, session: any) => void) | undefined
 
-    mockAuth.onAuthStateChange.mockImplementation((callback) => {
+    mockAuth.onAuthStateChange.mockImplementation((callback: (event: string, session: any) => void) => {
       authCallback = callback
       return {
         data: {
@@ -88,7 +88,7 @@ describe('useSupabaseAuth', () => {
     })
 
     // Simulate auth state change
-    authCallback('SIGNED_IN', mockSession)
+    authCallback?.('SIGNED_IN', mockSession)
 
     await waitFor(() => {
       expect(result.current.user).toBeDefined()

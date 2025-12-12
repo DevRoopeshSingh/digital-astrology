@@ -103,47 +103,53 @@ function wrapCachedResponse<T>(data: T, ttl: number): CachedResponse<T> {
  */
 
 const getBirthChartCached = cached(
-  async (request: AstrologyRequest) => {
+  async (...args: unknown[]) => {
+    const request = args[0] as AstrologyRequest
     logger.info('Fetching birth chart from API', { request })
     const data = await astrologyAPI.getBirthChart(request)
     return wrapCachedResponse(data, CACHE_24H)
   },
   {
     ttl: CACHE_24H,
-    key: (request: AstrologyRequest) => generateCacheKey(request, 'birth-chart'),
+    key: (...args: unknown[]) => generateCacheKey(args[0] as AstrologyRequest, 'birth-chart'),
     staleWhileRevalidate: true,
   }
-)
+) as (request: AstrologyRequest) => Promise<CachedResponse<BirthChartResponse>>
 
 const getDivisionalChartCached = cached(
-  async (request: AstrologyRequest, chartType: DivisionalChartType) => {
+  async (...args: unknown[]) => {
+    const request = args[0] as AstrologyRequest
+    const chartType = args[1] as DivisionalChartType
     logger.info('Fetching divisional chart from API', { request, chartType })
     const data = await astrologyAPI.getDivisionalChart(request, chartType)
     return wrapCachedResponse(data, CACHE_24H)
   },
   {
     ttl: CACHE_24H,
-    key: (request: AstrologyRequest, chartType: DivisionalChartType) =>
-      generateCacheKey(request, `div-chart-${chartType}`),
+    key: (...args: unknown[]) =>
+      generateCacheKey(args[0] as AstrologyRequest, `div-chart-${args[1]}`),
     staleWhileRevalidate: true,
   }
-)
+) as (request: AstrologyRequest, chartType: DivisionalChartType) => Promise<CachedResponse<BirthChartResponse>>
 
 const getChartSVGCached = cached(
-  async (request: AstrologyRequest) => {
+  async (...args: unknown[]) => {
+    const request = args[0] as AstrologyRequest
     logger.info('Fetching chart SVG from API', { request })
     const data = await astrologyAPI.getChartSVG(request)
     return wrapCachedResponse(data, CACHE_24H)
   },
   {
     ttl: CACHE_24H,
-    key: (request: AstrologyRequest) => generateCacheKey(request, 'chart-svg'),
+    key: (...args: unknown[]) => generateCacheKey(args[0] as AstrologyRequest, 'chart-svg'),
     staleWhileRevalidate: true,
   }
-)
+) as (request: AstrologyRequest) => Promise<CachedResponse<SVGChartResponse>>
 
 const getDivisionalChartSVGCached = cached(
-  async (request: AstrologyRequest, chartType: DivisionalChartType) => {
+  async (...args: unknown[]) => {
+    const request = args[0] as AstrologyRequest
+    const chartType = args[1] as DivisionalChartType
     logger.info('Fetching divisional chart SVG from API', {
       request,
       chartType,
@@ -153,79 +159,85 @@ const getDivisionalChartSVGCached = cached(
   },
   {
     ttl: CACHE_24H,
-    key: (request: AstrologyRequest, chartType: DivisionalChartType) =>
-      generateCacheKey(request, `chart-svg-${chartType}`),
+    key: (...args: unknown[]) =>
+      generateCacheKey(args[0] as AstrologyRequest, `chart-svg-${args[1]}`),
     staleWhileRevalidate: true,
   }
-)
+) as (request: AstrologyRequest, chartType: DivisionalChartType) => Promise<CachedResponse<SVGChartResponse>>
 
 const getPanchangCached = cached(
-  async (request: AstrologyRequest) => {
+  async (...args: unknown[]) => {
+    const request = args[0] as AstrologyRequest
     logger.info('Fetching panchang from API', { request })
     const data = await astrologyAPI.getPanchang(request)
     return wrapCachedResponse(data, CACHE_6H)
   },
   {
     ttl: CACHE_6H, // Shorter TTL for daily changing data
-    key: (request: AstrologyRequest) => generateCacheKey(request, 'panchang'),
+    key: (...args: unknown[]) => generateCacheKey(args[0] as AstrologyRequest, 'panchang'),
     staleWhileRevalidate: true,
   }
-)
+) as (request: AstrologyRequest) => Promise<CachedResponse<PanchangResponse>>
 
 const getCompatibilityCached = cached(
-  async (person1: AstrologyRequest, person2: AstrologyRequest) => {
+  async (...args: unknown[]) => {
+    const person1 = args[0] as AstrologyRequest
+    const person2 = args[1] as AstrologyRequest
     logger.info('Fetching compatibility from API', { person1, person2 })
     const data = await astrologyAPI.getCompatibility(person1, person2)
     return wrapCachedResponse(data, CACHE_24H)
   },
   {
     ttl: CACHE_24H,
-    key: (person1: AstrologyRequest, person2: AstrologyRequest) =>
-      generateCompatibilityKey(person1, person2),
+    key: (...args: unknown[]) =>
+      generateCompatibilityKey(args[0] as AstrologyRequest, args[1] as AstrologyRequest),
     staleWhileRevalidate: true,
   }
-)
+) as (person1: AstrologyRequest, person2: AstrologyRequest) => Promise<CachedResponse<CompatibilityResponse>>
 
 const getDasaCached = cached(
-  async (request: AstrologyRequest) => {
+  async (...args: unknown[]) => {
+    const request = args[0] as AstrologyRequest
     logger.info('Fetching dasa from API', { request })
     const data = await astrologyAPI.getDasa(request)
     return wrapCachedResponse(data, CACHE_24H)
   },
   {
     ttl: CACHE_24H,
-    key: (request: AstrologyRequest) => generateCacheKey(request, 'dasa'),
+    key: (...args: unknown[]) => generateCacheKey(args[0] as AstrologyRequest, 'dasa'),
     staleWhileRevalidate: true,
   }
-)
+) as (request: AstrologyRequest) => Promise<CachedResponse<DasaResponse>>
 
 const getPlanetaryStrengthCached = cached(
-  async (request: AstrologyRequest) => {
+  async (...args: unknown[]) => {
+    const request = args[0] as AstrologyRequest
     logger.info('Fetching planetary strength from API', { request })
     const data = await astrologyAPI.getPlanetaryStrength(request)
     return wrapCachedResponse(data, CACHE_24H)
   },
   {
     ttl: CACHE_24H,
-    key: (request: AstrologyRequest) =>
-      generateCacheKey(request, 'planetary-strength'),
+    key: (...args: unknown[]) =>
+      generateCacheKey(args[0] as AstrologyRequest, 'planetary-strength'),
     staleWhileRevalidate: true,
   }
-)
+) as (request: AstrologyRequest) => Promise<CachedResponse<PlanetaryStrengthResponse>>
 
 const getWesternNatalCached = cached(
-  async (request: AstrologyRequest) => {
+  async (...args: unknown[]) => {
+    const request = args[0] as AstrologyRequest
     logger.info('Fetching western natal from API', { request })
     const data = await astrologyAPI.getWesternNatal(request)
     return wrapCachedResponse(data, CACHE_24H)
   },
   {
     ttl: CACHE_24H,
-    key: (request: AstrologyRequest) =>
-      generateCacheKey(request, 'western-natal'),
+    key: (...args: unknown[]) =>
+      generateCacheKey(args[0] as AstrologyRequest, 'western-natal'),
     staleWhileRevalidate: true,
   }
-)
+) as (request: AstrologyRequest) => Promise<CachedResponse<WesternNatalResponse>>
 
 /**
  * Cached Astrology API Client
@@ -235,7 +247,7 @@ export class CachedAstrologyAPIClient {
   async getBirthChart(
     request: AstrologyRequest
   ): Promise<CachedResponse<BirthChartResponse>> {
-    const result = await getBirthChartCached(request)
+    const result = await getBirthChartCached(request) as CachedResponse<BirthChartResponse>
     result.from_cache = true
     return result
   }
@@ -244,7 +256,7 @@ export class CachedAstrologyAPIClient {
     request: AstrologyRequest,
     chartType: DivisionalChartType
   ): Promise<CachedResponse<BirthChartResponse>> {
-    const result = await getDivisionalChartCached(request, chartType)
+    const result = await getDivisionalChartCached(request, chartType) as CachedResponse<BirthChartResponse>
     result.from_cache = true
     return result
   }
@@ -252,7 +264,7 @@ export class CachedAstrologyAPIClient {
   async getChartSVG(
     request: AstrologyRequest
   ): Promise<CachedResponse<SVGChartResponse>> {
-    const result = await getChartSVGCached(request)
+    const result = await getChartSVGCached(request) as CachedResponse<SVGChartResponse>
     result.from_cache = true
     return result
   }
@@ -261,7 +273,7 @@ export class CachedAstrologyAPIClient {
     request: AstrologyRequest,
     chartType: DivisionalChartType
   ): Promise<CachedResponse<SVGChartResponse>> {
-    const result = await getDivisionalChartSVGCached(request, chartType)
+    const result = await getDivisionalChartSVGCached(request, chartType) as CachedResponse<SVGChartResponse>
     result.from_cache = true
     return result
   }
@@ -269,7 +281,7 @@ export class CachedAstrologyAPIClient {
   async getPanchang(
     request: AstrologyRequest
   ): Promise<CachedResponse<PanchangResponse>> {
-    const result = await getPanchangCached(request)
+    const result = await getPanchangCached(request) as CachedResponse<PanchangResponse>
     result.from_cache = true
     return result
   }
@@ -278,7 +290,7 @@ export class CachedAstrologyAPIClient {
     person1: AstrologyRequest,
     person2: AstrologyRequest
   ): Promise<CachedResponse<CompatibilityResponse>> {
-    const result = await getCompatibilityCached(person1, person2)
+    const result = await getCompatibilityCached(person1, person2) as CachedResponse<CompatibilityResponse>
     result.from_cache = true
     return result
   }
@@ -286,7 +298,7 @@ export class CachedAstrologyAPIClient {
   async getDasa(
     request: AstrologyRequest
   ): Promise<CachedResponse<DasaResponse>> {
-    const result = await getDasaCached(request)
+    const result = await getDasaCached(request) as CachedResponse<DasaResponse>
     result.from_cache = true
     return result
   }
@@ -294,7 +306,7 @@ export class CachedAstrologyAPIClient {
   async getPlanetaryStrength(
     request: AstrologyRequest
   ): Promise<CachedResponse<PlanetaryStrengthResponse>> {
-    const result = await getPlanetaryStrengthCached(request)
+    const result = await getPlanetaryStrengthCached(request) as CachedResponse<PlanetaryStrengthResponse>
     result.from_cache = true
     return result
   }
@@ -302,7 +314,7 @@ export class CachedAstrologyAPIClient {
   async getWesternNatal(
     request: AstrologyRequest
   ): Promise<CachedResponse<WesternNatalResponse>> {
-    const result = await getWesternNatalCached(request)
+    const result = await getWesternNatalCached(request) as CachedResponse<WesternNatalResponse>
     result.from_cache = true
     return result
   }
