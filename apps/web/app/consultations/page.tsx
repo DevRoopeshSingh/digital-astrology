@@ -21,7 +21,7 @@ export default function ConsultationsPage() {
           <div className="mb-6 text-6xl">🔮</div>
           <h2 className="mb-4 text-2xl font-semibold text-white">Coming Soon</h2>
           <p className="mb-8 text-slate-300">
-            We're building a marketplace of verified astrologers. Soon you'll be able to:
+            We&apos;re building a marketplace of verified astrologers. Soon you&apos;ll be able to:
           </p>
           <ul className="mb-8 space-y-2 text-left text-slate-300">
             <li className="flex items-center gap-3">

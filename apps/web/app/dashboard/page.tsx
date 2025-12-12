@@ -31,7 +31,7 @@ export default async function DashboardPage() {
 
       {/* Panchang */}
       <div className="mb-12">
-        <h2 className="mb-6 text-2xl font-semibold text-white">Today's Panchang</h2>
+        <h2 className="mb-6 text-2xl font-semibold text-white">Today&apos;s Panchang</h2>
         <PanchangHighlights />
       </div>
 
