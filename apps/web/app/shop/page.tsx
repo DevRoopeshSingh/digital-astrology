@@ -21,7 +21,7 @@ export default function ShopPage() {
           <div className="mb-6 text-6xl">🛍️</div>
           <h2 className="mb-4 text-2xl font-semibold text-white">Coming Soon</h2>
           <p className="mb-8 text-slate-300">
-            We're curating an authentic marketplace of spiritual products. Soon you'll find:
+            We&apos;re curating an authentic marketplace of spiritual products. Soon you&apos;ll find:
           </p>
           <ul className="mb-8 space-y-2 text-left text-slate-300">
             <li className="flex items-center gap-3">

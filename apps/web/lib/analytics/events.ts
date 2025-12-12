@@ -18,6 +18,16 @@ interface EventProperties {
 }
 
 /**
+ * Extend Window interface to include analytics libraries
+ */
+interface WindowWithAnalytics extends Window {
+  gtag?: (...args: unknown[]) => void
+  posthog?: {
+    capture: (eventName: string, properties?: EventProperties) => void
+  }
+}
+
+/**
  * Track an analytics event
  * @param eventName - Name of the event
  * @param properties - Optional event properties
@@ -30,13 +40,13 @@ export function trackEvent(eventName: EventName, properties?: EventProperties) {
     }
 
     // Send to Posthog if available
-    if (typeof window !== 'undefined' && (window as any).posthog) {
-      (window as any).posthog.capture(eventName, properties)
+    if (typeof window !== 'undefined' && (window as WindowWithAnalytics).posthog) {
+      (window as WindowWithAnalytics).posthog?.capture(eventName, properties)
     }
 
     // Send to Google Analytics if available
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', eventName, properties)
+    if (typeof window !== 'undefined' && (window as WindowWithAnalytics).gtag) {
+      (window as WindowWithAnalytics).gtag?.('event', eventName, properties)
     }
 
     // Custom analytics endpoint (optional)

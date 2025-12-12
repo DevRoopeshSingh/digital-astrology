@@ -64,7 +64,8 @@ export default function SettingsForm({ user, supabaseUser }: SettingsFormProps) 
       setSuccess('Settings updated successfully!')
       router.refresh()
     } catch (err: unknown) {
-      setError(err.message || 'An error occurred. Please try again.')
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred. Please try again.'
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }

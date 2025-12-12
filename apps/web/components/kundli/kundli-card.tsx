@@ -14,7 +14,7 @@ interface Kundli {
   latitude: number
   longitude: number
   timezone: string
-  chartData: any
+  chartData: Record<string, unknown>
   isPublic: boolean
   createdAt: Date
   updatedAt: Date
@@ -29,8 +29,10 @@ export default function KundliCard({ kundli, onDelete }: KundliCardProps) {
   const [deleting, setDeleting] = useState(false)
   const [copiedLink, setCopiedLink] = useState(false)
 
-  const chartData = kundli.chartData as any
-  const hasAscendant = chartData?.data?.ascendant || chartData?.output?.[0]?.['0']?.ascendant
+  const chartData = kundli.chartData as Record<string, unknown>
+  const dataObj = chartData?.data as Record<string, unknown> | undefined
+  const outputArray = chartData?.output as Array<Record<string, Record<string, unknown>>> | undefined
+  const hasAscendant = dataObj?.ascendant || outputArray?.[0]?.['0']?.ascendant
 
   const handleDelete = async () => {
     if (!confirm(`Are you sure you want to delete "${kundli.name}"? This action cannot be undone.`)) {

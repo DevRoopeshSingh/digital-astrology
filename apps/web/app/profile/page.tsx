@@ -21,7 +21,7 @@ interface UserProfile {
 
 export default function ProfilePage() {
   const router = useRouter()
-  const { user, loading: authLoading, isAuthenticated } = useSupabaseAuth()
+  const { loading: authLoading, isAuthenticated } = useSupabaseAuth()
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -54,7 +54,8 @@ export default function ProfilePage() {
 
       setProfile(data.user)
     } catch (err: unknown) {
-      setError(err.message || 'Failed to load profile')
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load profile'
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }

@@ -218,7 +218,7 @@ export class AstrologyAPIClient {
    * Get chart as SVG code
    */
   async getChartSVG(request: AstrologyRequest): Promise<SVGChartResponse> {
-    const response = await makeRequest<any>(
+    const response = await makeRequest<Record<string, unknown>>(
       '/horoscope-chart-svg-code',
       request,
       'chart_svg'
@@ -228,7 +228,7 @@ export class AstrologyAPIClient {
     // API returns: { statusCode: 200, output: "<svg>..." }
     // We need: { svg_code: "<svg>...", chart_name: "Rasi Chart" }
     return {
-      svg_code: response.output || response.svg_code || '',
+      svg_code: (response.output as string) || (response.svg_code as string) || '',
       chart_name: 'Rasi Chart' // D1 is always Rasi chart
     }
   }
@@ -240,7 +240,7 @@ export class AstrologyAPIClient {
     request: AstrologyRequest,
     chartType: DivisionalChartType
   ): Promise<SVGChartResponse> {
-    const response = await makeRequest<any>(
+    const response = await makeRequest<Record<string, unknown>>(
       `/horoscope-chart-${chartType.toLowerCase()}-svg-code`,
       request,
       `chart_svg_${chartType}`
@@ -269,7 +269,7 @@ export class AstrologyAPIClient {
     }
 
     return {
-      svg_code: response.output || response.svg_code || '',
+      svg_code: (response.output as string) || (response.svg_code as string) || '',
       chart_name: chartNames[chartType] || `${chartType} Chart`
     }
   }

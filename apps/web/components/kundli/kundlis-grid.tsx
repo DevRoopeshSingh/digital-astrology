@@ -12,7 +12,7 @@ interface Kundli {
   latitude: number
   longitude: number
   timezone: string
-  chartData: any
+  chartData: Record<string, unknown>
   isPublic: boolean
   createdAt: Date
   updatedAt: Date

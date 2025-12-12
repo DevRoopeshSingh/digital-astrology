@@ -47,7 +47,7 @@ interface Planet {
 interface BirthChartResponse {
   data: {
     statusCode?: number
-    input?: any
+    input?: unknown
     output?: unknown[]
     ascendant?: number
     planets?: Planet[]
@@ -112,7 +112,7 @@ const houseMeanings: { [key: number]: { name: string; meaning: string; lifeArea:
   12: { name: '12th House', meaning: 'Expenses, losses, spirituality, and foreign lands', lifeArea: 'Liberation & Foreign' },
 }
 
-export default function BirthChartGeneratorV2({  }: BirthChartGeneratorProps) {
+export default function BirthChartGeneratorV2() {
   const [activeTab, setActiveTab] = useState<TabType>('form')
   const [showHelp, setShowHelp] = useState(true)
   const [expandedPlanet, setExpandedPlanet] = useState<string | null>(null)
@@ -148,34 +148,26 @@ export default function BirthChartGeneratorV2({  }: BirthChartGeneratorProps) {
     { code: 'D12', name: 'Parents Chart', icon: '👨‍👩‍👦', desc: 'Mother & father', beginner: false },
   ]
 
-  const _popularLocations = [
-    { name: 'Delhi, India', lat: 28.6139, lon: 77.2090, tz: 5.5 },
-    { name: 'Mumbai, India', lat: 19.0760, lon: 72.8777, tz: 5.5 },
-    { name: 'Bangalore, India', lat: 12.9716, lon: 77.5946, tz: 5.5 },
-    { name: 'Kolkata, India', lat: 22.5726, lon: 88.3639, tz: 5.5 },
-    { name: 'Chennai, India', lat: 13.0827, lon: 80.2707, tz: 5.5 },
-    { name: 'Hyderabad, India', lat: 17.3850, lon: 78.4867, tz: 5.5 },
-  ]
-
   // Transform raw API response
-  const transformChartData = (rawData: unknown): BirthChartResponse => {
-    if (rawData.data?.output && Array.isArray(rawData.data.output)) {
-      const planetData = rawData.data.output[1]
-      const ascendantData = rawData.data.output[0]?.['0']
+  const transformChartData = (rawData: Record<string, unknown>): BirthChartResponse => {
+    const data = rawData.data as Record<string, unknown>
+    if (data?.output && Array.isArray(data.output)) {
+      const planetData = data.output[1] as Record<string, Record<string, unknown>>
+      const ascendantData = (data.output[0] as Record<string, Record<string, unknown>>)?.['0']
 
       const planetsArray: Planet[] = []
       const planetNames = ['Sun', 'Moon', 'Mars', 'Mercury', 'Jupiter', 'Venus', 'Saturn', 'Rahu', 'Ketu']
 
       planetNames.forEach(name => {
         if (planetData[name]) {
-          const p = planetData[name]
+          const p = planetData[name] as Record<string, unknown>
           planetsArray.push({
             name,
-            fullDegree: p.fullDegree || 0,
-            normDegree: p.normDegree || 0,
+            fullDegree: (p.fullDegree as number) || 0,
+            normDegree: (p.normDegree as number) || 0,
             isRetro: p.isRetro || false,
-            sign: getSignName(p.current_sign || 1),
-            house: p.house_number,
+            sign: getSignName((p.current_sign as number) || 1),
+            house: p.house_number as number,
           })
         }
       })
@@ -183,13 +175,13 @@ export default function BirthChartGeneratorV2({  }: BirthChartGeneratorProps) {
       return {
         ...rawData,
         data: {
-          ...rawData.data,
-          ascendant: ascendantData?.fullDegree || 0,
+          ...data,
+          ascendant: (ascendantData?.fullDegree as number) || 0,
           planets: planetsArray,
         }
-      }
+      } as BirthChartResponse
     }
-    return rawData
+    return rawData as BirthChartResponse
   }
 
   const generateBirthChart = async () => {
@@ -260,16 +252,6 @@ export default function BirthChartGeneratorV2({  }: BirthChartGeneratorProps) {
     } catch (err) {
       console.error(`Failed to load ${chartType}:`, err)
     }
-  }
-
-  const _selectLocation = (location: typeof popularLocations[0]) => {
-    setBirthData(prev => ({
-      ...prev,
-      latitude: location.lat,
-      longitude: location.lon,
-      timezone: location.tz,
-      location: location.name,
-    }))
   }
 
   const getSignName = (signNumber: number): string => {

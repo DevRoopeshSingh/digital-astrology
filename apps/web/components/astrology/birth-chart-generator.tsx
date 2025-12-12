@@ -31,7 +31,7 @@ interface Planet {
 interface BirthChartResponse {
   data: {
     statusCode?: number
-    input?: any
+    input?: unknown
     output?: unknown[]
     ascendant?: number
     planets?: Planet[]
@@ -51,7 +51,7 @@ interface ChartSVGResponse {
 
 type TabType = 'form' | 'chart' | 'divisional'
 
-export default function BirthChartGenerator({  }: BirthChartGeneratorProps) {
+export default function BirthChartGenerator() {
   const [activeTab, setActiveTab] = useState<TabType>('form')
   const [birthData, setBirthData] = useState<BirthData>({
     dateTime: '',
@@ -88,11 +88,12 @@ export default function BirthChartGenerator({  }: BirthChartGeneratorProps) {
   ]
 
   // Transform raw API response to structured format
-  const transformChartData = (rawData: unknown): BirthChartResponse => {
+  const transformChartData = (rawData: Record<string, unknown>): BirthChartResponse => {
+    const data = rawData.data as Record<string, unknown>
     // Check if data.output exists (raw API format)
-    if (rawData.data?.output && Array.isArray(rawData.data.output)) {
-      const planetData = rawData.data.output[1] // Second element has planet info
-      const ascendantData = rawData.data.output[0]?.['0'] // First element has ascendant
+    if (data?.output && Array.isArray(data.output)) {
+      const planetData = data.output[1] as Record<string, Record<string, unknown>>
+      const ascendantData = (data.output[0] as Record<string, Record<string, unknown>>)?.['0']
 
       // Convert planet object to array
       const planetsArray: Planet[] = []
@@ -100,14 +101,14 @@ export default function BirthChartGenerator({  }: BirthChartGeneratorProps) {
 
       planetNames.forEach(name => {
         if (planetData[name]) {
-          const p = planetData[name]
+          const p = planetData[name] as Record<string, unknown>
           planetsArray.push({
             name,
-            fullDegree: p.fullDegree || 0,
-            normDegree: p.normDegree || 0,
+            fullDegree: (p.fullDegree as number) || 0,
+            normDegree: (p.normDegree as number) || 0,
             isRetro: p.isRetro || false,
-            sign: getSignName(p.current_sign || 1),
-            house: p.house_number,
+            sign: getSignName((p.current_sign as number) || 1),
+            house: p.house_number as number,
           })
         }
       })
@@ -115,15 +116,15 @@ export default function BirthChartGenerator({  }: BirthChartGeneratorProps) {
       return {
         ...rawData,
         data: {
-          ...rawData.data,
-          ascendant: ascendantData?.fullDegree || 0,
+          ...data,
+          ascendant: (ascendantData?.fullDegree as number) || 0,
           planets: planetsArray,
         }
-      }
+      } as BirthChartResponse
     }
 
     // Already transformed or different format
-    return rawData
+    return rawData as BirthChartResponse
   }
 
   const generateBirthChart = async () => {
@@ -189,16 +190,6 @@ export default function BirthChartGenerator({  }: BirthChartGeneratorProps) {
     } catch (err) {
       console.error(`Failed to load ${chartType}:`, err)
     }
-  }
-
-  const selectLocation = (location: typeof popularLocations[0]) => {
-    setBirthData(prev => ({
-      ...prev,
-      latitude: location.lat,
-      longitude: location.lon,
-      timezone: location.tz,
-      location: location.name,
-    }))
   }
 
   const getSignName = (signNumber: number): string => {
