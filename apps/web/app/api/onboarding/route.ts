@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/db/prisma'
-import { Prisma } from '@prisma/client'
 import { logger } from '@/lib/monitoring/logger'
 import { cachedAstrologyAPI, createAstrologyRequest } from '@/lib/astrology/cached-client'
 
@@ -44,7 +43,7 @@ async function computeAstrologicalSigns(
   moonSign: string | null
   risingSign: string | null
   risingDegree: number | null
-  birthDetailsJson: Prisma.JsonValue
+  birthDetailsJson: Record<string, unknown> | null
 }> {
   try {
     // Create astrology request
@@ -73,7 +72,7 @@ async function computeAstrologicalSigns(
         moonSign: null,
         risingSign: null,
         risingDegree: null,
-        birthDetailsJson: chartData as unknown as Prisma.JsonValue,
+        birthDetailsJson: chartData as Record<string, unknown>,
       }
     }
 
@@ -115,7 +114,7 @@ async function computeAstrologicalSigns(
       moonSign,
       risingSign,
       risingDegree: ascendantDegree || null,
-      birthDetailsJson: chartData as unknown as Prisma.JsonValue,
+      birthDetailsJson: chartData as Record<string, unknown>,
     }
   } catch (error) {
     logger.error('Failed to compute astrological signs', error)
@@ -125,7 +124,7 @@ async function computeAstrologicalSigns(
       moonSign: null,
       risingSign: null,
       risingDegree: null,
-      birthDetailsJson: null as Prisma.JsonValue,
+      birthDetailsJson: null,
     }
   }
 }
@@ -280,7 +279,7 @@ export async function POST(request: Request) {
       birthLatitude,
       birthLongitude,
       birthTimezone: birthTimezone.toString(),
-      birthDetailsJson: birthDetailsJson as Prisma.InputJsonValue,
+      birthDetailsJson: (birthDetailsJson || {}) as any,
       sunSign,
       moonSign,
       risingSign,

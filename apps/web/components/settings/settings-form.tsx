@@ -3,7 +3,9 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { User } from '@supabase/supabase-js'
-import { AstrologySystem } from '@prisma/client'
+
+// Astrology System type (matches Prisma enum)
+type AstrologySystem = 'VEDIC' | 'WESTERN'
 
 interface DbUser {
   id: string
