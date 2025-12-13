@@ -1,25 +1,60 @@
 import { PrismaClient } from '@prisma/client'
+import { PrismaPg } from '@prisma/adapter-pg'
+import { Pool } from 'pg'
 import { logger } from '@/lib/monitoring/logger'
 
 /**
- * Prisma Client Singleton with Connection Pooling
+ * Prisma v7 Client Singleton with PostgreSQL Adapter
  *
- * Best Practices:
- * - Single instance across the application (prevents connection exhaustion)
- * - Connection pooling configured for optimal performance
+ * Prisma v7 Changes:
+ * - Uses driver adapters instead of connection strings in schema
+ * - Connection pooling configured via pg.Pool
+ * - Adapter pattern for database connections
  * - Logging for slow queries and errors
  * - Graceful shutdown handling
  */
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
+  pool: Pool | undefined
 }
 
 /**
- * Create Prisma Client with optimized configuration
+ * Create PostgreSQL connection pool
+ */
+function createPool() {
+  const connectionString = process.env.DATABASE_URL
+
+  if (!connectionString) {
+    throw new Error('DATABASE_URL environment variable is not set')
+  }
+
+  return new Pool({
+    connectionString,
+    // Connection pool configuration
+    max: 10, // Maximum number of clients in the pool
+    idleTimeoutMillis: 30000, // Close idle clients after 30s
+    connectionTimeoutMillis: 10000, // Connection timeout 10s
+  })
+}
+
+/**
+ * Create Prisma Client with PostgreSQL adapter
  */
 function createPrismaClient() {
+  // Create or reuse connection pool
+  const pool = globalForPrisma.pool ?? createPool()
+
+  if (process.env.NODE_ENV !== 'production') {
+    globalForPrisma.pool = pool
+  }
+
+  // Create Prisma adapter for PostgreSQL
+  const adapter = new PrismaPg(pool)
+
+  // Initialize Prisma Client with adapter (Prisma v7)
   const client = new PrismaClient({
+    adapter,
     log: [
       {
         emit: 'event',
@@ -34,9 +69,6 @@ function createPrismaClient() {
         level: 'warn',
       },
     ],
-    // Connection pool settings
-    // Note: These are set via DATABASE_URL query params for better control
-    // Example: postgresql://user:pass@host:port/db?connection_limit=10&pool_timeout=20
   })
 
   // Log slow queries (> 1 second)
@@ -83,23 +115,32 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 /**
- * Graceful shutdown - disconnect Prisma on process exit
+ * Graceful shutdown - disconnect Prisma and close pool on process exit
  */
 if (typeof window === 'undefined') {
   process.on('beforeExit', async () => {
-    logger.info('Disconnecting Prisma Client...')
+    logger.info('Disconnecting Prisma Client and closing pool...')
     await prisma.$disconnect()
+    if (globalForPrisma.pool) {
+      await globalForPrisma.pool.end()
+    }
   })
 
   process.on('SIGINT', async () => {
-    logger.info('SIGINT received - disconnecting Prisma Client...')
+    logger.info('SIGINT received - disconnecting Prisma Client and closing pool...')
     await prisma.$disconnect()
+    if (globalForPrisma.pool) {
+      await globalForPrisma.pool.end()
+    }
     process.exit(0)
   })
 
   process.on('SIGTERM', async () => {
-    logger.info('SIGTERM received - disconnecting Prisma Client...')
+    logger.info('SIGTERM received - disconnecting Prisma Client and closing pool...')
     await prisma.$disconnect()
+    if (globalForPrisma.pool) {
+      await globalForPrisma.pool.end()
+    }
     process.exit(0)
   })
 }

@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { prisma } from '@digital-astrology/schemas'
+import { prisma } from '@/lib/db/prisma'
 import Link from 'next/link'
 import KundlisGrid from '@components/kundli/kundlis-grid'
 

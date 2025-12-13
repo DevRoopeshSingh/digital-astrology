@@ -1,19 +1,12 @@
-import { PrismaClient } from "@prisma/client";
-
-// Prevent multiple instances of Prisma Client in development
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
-
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"]
-  });
-
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
-}
+/**
+ * Prisma v7 Schemas Package
+ *
+ * This package exports Prisma types only.
+ * Each application should create its own PrismaClient instance
+ * with the appropriate adapter configuration for Prisma v7.
+ *
+ * See apps/web/lib/db/prisma.ts for an example of Prisma v7 client setup.
+ */
 
 // Re-export Prisma types for convenience
 export * from "@prisma/client";

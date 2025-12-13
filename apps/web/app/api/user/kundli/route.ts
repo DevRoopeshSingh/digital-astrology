@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { prisma } from '@digital-astrology/schemas'
+import { prisma } from '@/lib/db/prisma'
 import { Prisma } from '@prisma/client'
 import { z } from 'zod'
 
