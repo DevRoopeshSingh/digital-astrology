@@ -1,5 +1,6 @@
 // Prisma Schema for Digital Astrology Platform
 // Database: PostgreSQL
+// Updated for Prisma 5.x+ with connection pooling support
 
 generator client {
   provider = "prisma-client-js"
