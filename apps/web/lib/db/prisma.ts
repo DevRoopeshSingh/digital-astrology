@@ -41,19 +41,20 @@ function createPrismaClient() {
 
   // Log slow queries (> 1 second)
   client.$on('query' as never, (e: unknown) => {
-    const duration = e.duration || 0
+    const queryEvent = e as { duration?: number; query?: string; params?: unknown }
+    const duration = queryEvent.duration || 0
 
     if (duration > 1000) {
       logger.warn('Slow database query detected', {
-        query: e.query,
+        query: queryEvent.query,
         duration: `${duration}ms`,
-        params: e.params,
+        params: queryEvent.params,
       })
     }
 
     if (process.env.NODE_ENV === 'development' && duration > 100) {
       logger.debug('Database query', {
-        query: e.query,
+        query: queryEvent.query,
         duration: `${duration}ms`,
       })
     }
@@ -61,12 +62,12 @@ function createPrismaClient() {
 
   // Log errors
   client.$on('error' as never, (e: unknown) => {
-    logger.error('Database error', e)
+    logger.error('Database error', e instanceof Error ? e : undefined, { event: e })
   })
 
   // Log warnings
   client.$on('warn' as never, (e: unknown) => {
-    logger.warn('Database warning', e)
+    logger.warn('Database warning', { event: e })
   })
 
   return client
@@ -121,10 +122,10 @@ export async function checkDatabaseConnection(): Promise<{
       healthy: true,
       latency,
     }
-  } catch (error) {
+  } catch (error: unknown) {
     const latency = Date.now() - start
 
-    logger.error('Database connection check failed', error)
+    logger.error('Database connection check failed', error instanceof Error ? error : undefined)
 
     return {
       healthy: false,
@@ -149,8 +150,8 @@ export async function getDatabaseStats() {
     return {
       activeConnections: Number(result[0]?.count || 0),
     }
-  } catch (error) {
-    logger.error('Failed to get database stats', error)
+  } catch (error: unknown) {
+    logger.error('Failed to get database stats', error instanceof Error ? error : undefined)
     return {
       activeConnections: -1,
       error: error instanceof Error ? error.message : 'Unknown error',
@@ -182,11 +183,14 @@ export async function withTransaction<T>(
     } catch (error: unknown) {
       lastError = error
 
+      // Type guard for Prisma errors
+      const prismaError = error as { code?: string; message?: string }
+
       // Don't retry on certain errors
       if (
-        error.code === 'P2002' || // Unique constraint violation
-        error.code === 'P2003' || // Foreign key constraint violation
-        error.code === 'P2025'    // Record not found
+        prismaError.code === 'P2002' || // Unique constraint violation
+        prismaError.code === 'P2003' || // Foreign key constraint violation
+        prismaError.code === 'P2025'    // Record not found
       ) {
         throw error
       }
@@ -198,7 +202,7 @@ export async function withTransaction<T>(
           attempt,
           maxRetries,
           delay,
-          error: error.message,
+          error: prismaError.message,
         })
         await new Promise(resolve => setTimeout(resolve, delay))
       }

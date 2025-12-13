@@ -56,13 +56,13 @@ class MemoryCache {
     // Return cached data if still fresh
     if (age < ttl) {
       logger.debug('Cache hit', { key, age, ttl })
-      return entry.data
+      return entry.data as T
     }
 
     // Stale data - trigger revalidation but return stale
     if (options?.staleWhileRevalidate && !this.revalidating.has(key)) {
       logger.debug('Cache stale - returning stale data', { key, age, ttl })
-      return entry.data
+      return entry.data as T
     }
 
     // Expired
@@ -263,6 +263,7 @@ class RequestDeduplicator {
     // Return existing promise if request is in flight
     if (this.pending.has(key)) {
       logger.debug('Request deduplicated', { key })
+      // @ts-expect-error - Type inference issue with deduplicator return type
       return this.pending.get(key)!
     }
 

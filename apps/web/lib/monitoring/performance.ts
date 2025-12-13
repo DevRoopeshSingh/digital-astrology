@@ -379,13 +379,16 @@ export function reportWebVitals(metric: {
   })
 
   // Send to analytics
-  if (typeof window !== 'undefined' && (window as Window & { gtag?: (...args: unknown[]) => void }).gtag) {
-    ;(window as Window & { gtag: (...args: unknown[]) => void }).gtag('event', metric.name, {
-      value: Math.round(metric.value),
-      metric_id: metric.id,
-      metric_rating: metric.rating,
-      non_interaction: true,
-    })
+  if (typeof window !== 'undefined') {
+    const windowWithGtag = window as unknown as (Window & { gtag?: (...args: unknown[]) => void })
+    if (windowWithGtag.gtag) {
+      windowWithGtag.gtag('event', metric.name, {
+        value: Math.round(metric.value),
+        metric_id: metric.id,
+        metric_rating: metric.rating,
+        non_interaction: true,
+      })
+    }
   }
 }
 

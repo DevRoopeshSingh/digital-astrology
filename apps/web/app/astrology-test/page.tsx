@@ -2,9 +2,20 @@
 
 import { useState } from 'react'
 
+// TypeScript interface for API response
+interface AstrologyAPIResponse {
+  cached_at?: string
+  expires_at?: string
+  data?: {
+    svg_code?: string
+    [key: string]: unknown
+  }
+  [key: string]: unknown
+}
+
 export default function AstrologyTestPage() {
   const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<Record<string, unknown> | null>(null)
+  const [result, setResult] = useState<AstrologyAPIResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'chart' | 'panchang' | 'compatibility' | 'svg'>('chart')
 
@@ -479,7 +490,7 @@ export default function AstrologyTestPage() {
                   )}
                 </div>
 
-                {result.cached_at && (
+                {result.cached_at && result.expires_at && (
                   <p className="mb-2 text-xs text-green-300">
                     Cached: {new Date(result.cached_at).toLocaleString()} |
                     Expires: {new Date(result.expires_at).toLocaleString()}

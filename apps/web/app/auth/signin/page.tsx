@@ -44,7 +44,7 @@ function SignInContent() {
         setStep("check-email");
       }
     } catch (err: unknown) {
-      setError(err.message || "Failed to send magic link. Please try again.");
+      setError(err instanceof Error ? err.message : "Failed to send magic link. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -75,7 +75,7 @@ function SignInContent() {
         setStep("otp");
       }
     } catch (err: unknown) {
-      setError(err.message || "Failed to send OTP. Please try again.");
+      setError(err instanceof Error ? err.message : "Failed to send OTP. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -110,7 +110,7 @@ function SignInContent() {
         router.refresh();
       }
     } catch (err: unknown) {
-      setError(err.message || "Invalid code. Please try again.");
+      setError(err instanceof Error ? err.message : "Invalid code. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -120,7 +120,7 @@ function SignInContent() {
     try {
       await supabaseAuth.signInWithOAuth("google", callbackUrl);
     } catch (err: unknown) {
-      setError(err.message || "Failed to sign in with Google");
+      setError(err instanceof Error ? err.message : "Failed to sign in with Google");
     }
   };
 
