@@ -1,7 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "turbo build --filter=@digital-astrology/web",
+  "buildCommand": "turbo build",
   "installCommand": "yarn install --immutable",
-  "framework": null,
-  "outputDirectory": "apps/web/.next"
+  "framework": null
 }
